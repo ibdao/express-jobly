@@ -20,4 +20,42 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-module.exports = { sqlForPartialUpdate };
+/** Builds the SQL WHERE clause based on the given search terms passed through
+ *  the query string. 
+ *   
+ *  Takes: {
+ *     name: Anderson,
+ *     minEmployees: 10,
+ *     maxEmployees: 500
+ *  }
+ * 
+ *  Returns {
+ *     whereCondition: 'name ILIKE %Anderson% AND minEmployees = $1 AND maxEmployees = $2',
+ *     values: [10, 500]
+ *  }
+ */
+ function sqlForWhereClause(queries) {
+
+  const keys = Object.keys(queries);
+  const searchTerm = keys.map(
+    (searchTerm, idx) => {
+      if (searchTerm !== "name") {
+        if (searchTerm.startsWith("min")){
+          return `num_employees >= $${idx + 1}`;
+        } else if (searchTerm.startsWith("max")){
+          return `num_employees <= $${idx + 1}`;
+        }
+      }else{
+        return `${searchTerm} ILIKE '%${queries[searchTerm]}%'`;
+      }
+    }
+  );
+  delete queries.name;
+
+  return {
+    whereCondition: searchTerm.join(" AND "),
+    values: Object.values(queries),
+  };
+}
+
+module.exports = { sqlForPartialUpdate, sqlForWhereClause  };

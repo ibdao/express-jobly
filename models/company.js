@@ -2,8 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForPartialUpdate } = require("../helpers/sql");
-const { sqlFilterClause } = require("../helpers/filter");
+const { sqlForPartialUpdate, sqlForWhereClause } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
@@ -140,16 +139,27 @@ class Company {
     if (!company) throw new NotFoundError(`No company: ${handle}`);
   }
 
+  /** Filters companies based on searched terms: name, minEmployees, maxEmployees.
+   *  
+   *  Throws BadRequestError if searched max employees is less than min employees.
+   *  Throws NotFoundError if no companies match the search criteria. 
+  */
+
   static async filter(queries) {
-    const { setCols, values } = sqlFilterClause(queries);
-    console.log("WHERE clause", setCols);
+    if (Number(queries.maxEmployees) < Number(queries.minEmployees)){
+      throw new BadRequestError("Max employees cannot be less than min employees")
+    }
+
+    const { whereCondition, values } = sqlForWhereClause(queries);
     const querySql = `SELECT *
                       FROM companies
-                      WHERE ${setCols}`;
+                      WHERE ${whereCondition}
+                      ORDER BY name`;
     const result = await db.query(querySql, [...values]);
     const companies = result.rows;
-    if (!companies) {
-      throw new NotFoundError();
+
+    if (companies.length === 0) {
+      throw new NotFoundError("No companies match that criteria");
     }
     return companies;
   }
