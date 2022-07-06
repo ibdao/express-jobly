@@ -1,3 +1,4 @@
+"use strict";
 function sqlFilterClause(queries) {
   const keys = Object.keys(queries);
 
@@ -17,8 +18,4 @@ function sqlFilterClause(queries) {
   };
 }
 
-`SELECT *
-FROM companies
-WHERE max_employee = $1 AND name ILIKE %name% AND
-
-GROPE BY `;
+module.exports = { sqlFilterClause };
