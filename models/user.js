@@ -174,7 +174,7 @@ class User {
     const usernameVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE users 
-                      SET ${setCols} 
+                      SET ${setCols}
                       WHERE username = ${usernameVarIdx} 
                       RETURNING username,
                                 first_name AS "firstName",
