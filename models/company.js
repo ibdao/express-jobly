@@ -36,7 +36,12 @@ class Company {
           logo_url)
            VALUES
              ($1, $2, $3, $4, $5)
-           RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`,
+          RETURNING 
+            handle, 
+            name, 
+            description, 
+            num_employees AS "numEmployees", 
+            logo_url AS "logoUrl"`,
       [handle, name, description, numEmployees, logoUrl]
     );
     const company = result.rows[0];
@@ -112,7 +117,12 @@ class Company {
       UPDATE companies
       SET ${setCols}
         WHERE handle = ${handleVarIdx}
-        RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`;
+        RETURNING 
+          handle, 
+          name, 
+          description, 
+          num_employees AS "numEmployees", 
+          logo_url AS "logoUrl"`;
     const result = await db.query(querySql, [...values, handle]);
     const company = result.rows[0];
 
@@ -151,17 +161,22 @@ class Company {
         "Max employees cannot be less than min employees"
       );
     }
-    debugger;
-    const handleVarIdx = "$" + (values.length + 1);
 
     const { whereCondition, values } = sqlForWhereClause(queries);
-    const querySql = `SELECT *
-                      FROM companies
-                      WHERE ${whereCondition}
-                      ORDER BY name`;
+    const querySql = `
+      SELECT 
+          handle,
+          name,
+          description,
+          num_employees AS "numEmployees",
+          logo_url AS "logoUrl"
+        FROM companies
+        WHERE ${whereCondition}
+        ORDER BY name`;
     const result = await db.query(querySql, [...values]);
     const companies = result.rows;
-
+    
+    //TODO: no error is needed if result is not found. 
     if (companies.length === 0) {
       throw new NotFoundError("No companies match that criteria");
     }

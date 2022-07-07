@@ -30,13 +30,13 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
  *  }
  *
  *  Returns {
- *     whereCondition: 'name ILIKE %Anderson% AND minEmployees = $1 AND maxEmployees = $2',
- *     values: [10, 500]
+ *     whereCondition: 'name ILIKE $1 AND num_employees >= $2 AND num_employees <= $3',
+ *     values: ['%Anderson%', '10', '500']
  *  }
  */
 function sqlForWhereClause(queries) {
   const keys = Object.keys(queries);
-  const searchTerm = keys.map((searchTerm, idx) => {
+  const conditions = keys.map((searchTerm, idx) => {
     if (searchTerm !== "name") {
       if (searchTerm.startsWith("min")) {
         return `num_employees >= $${idx + 1}`;
@@ -44,7 +44,7 @@ function sqlForWhereClause(queries) {
         return `num_employees <= $${idx + 1}`;
       }
     } else {
-      return `${searchTerm} ILIKE $${idx + 1}`;
+      return `name ILIKE $${idx + 1}`;
     }
   });
 
@@ -52,10 +52,8 @@ function sqlForWhereClause(queries) {
     queries["name"] = "%" + queries["name"] + "%";
   }
 
-  console.log(Object.values(queries));
-
   return {
-    whereCondition: searchTerm.join(" AND "),
+    whereCondition: conditions.join(" AND "),
     values: Object.values(queries),
   };
 }

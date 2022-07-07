@@ -50,6 +50,12 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   const queries = req.query;
+
+  // If no search terms are passed in, return full list of companies
+  if (Object.keys(queries).length === 0) {
+    const companies = await Company.findAll();
+    return res.json({ companies });
+  }
   
   const validator = jsonschema.validate(queries, companySearchSchema, {
     required: true,
@@ -59,12 +65,6 @@ router.get("/", async function (req, res, next) {
   if (!validator.valid) {
     const errs = validator.errors.map((e) => e.stack);
     throw new BadRequestError(errs);
-  }
-
-  // If no search terms are passed in, return full list of companies
-  if (Object.keys(queries).length === 0) {
-    const companies = await Company.findAll();
-    return res.json({ companies });
   }
 
   // Filter companies based on the search criteria passed.

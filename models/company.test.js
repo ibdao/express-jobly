@@ -109,6 +109,20 @@ describe("get", function () {
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
+  //TODO: make test methods for .FILTER
+  test("invalid query logic: minEmployees cannot be more than maxEmployees", 
+    async function(){
+      const query = {
+        minEmployees : 5,
+        maxEmployees: 3,
+      };
+      try{
+        await Company.filter(query);
+        throw new Error("Fail test, you shouldn't get here")
+      } catch (err){
+        expect(err instanceof BadRequestError).toBeTruthy();
+      }
+    });
 });
 
 /************************************** update */

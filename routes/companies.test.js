@@ -107,7 +107,7 @@ describe("GET /companies", function () {
   });
 });
 
-test("GET /companies/?name=gree", async function () {
+test("GET /companies/?maxEmployees=1&name=c1, with filtering", async function () {
   const resp = await request(app).get("/companies/?maxEmployees=1&name=c1");
   expect(resp.body).toEqual({
     companies: [
@@ -120,6 +120,19 @@ test("GET /companies/?name=gree", async function () {
       },
     ],
   });
+});
+
+test("GET /companies/?zip=11111, errro when adding a not expected search term", async function () {
+  const resp = await request(app).get("/companies/?zip=11111&name=and");
+  expect(resp.body).toEqual({
+    "error": {
+      "message": [
+        "instance is not allowed to have the additional property \"zip\""
+      ],
+      "status": 400
+    }
+  });
+  expect(resp.statusCode).toEqual(400);
 });
 
 /************************************** GET /companies/:handle */
