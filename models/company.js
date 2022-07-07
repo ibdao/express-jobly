@@ -140,15 +140,19 @@ class Company {
   }
 
   /** Filters companies based on searched terms: name, minEmployees, maxEmployees.
-   *  
+   *
    *  Throws BadRequestError if searched max employees is less than min employees.
-   *  Throws NotFoundError if no companies match the search criteria. 
-  */
+   *  Throws NotFoundError if no companies match the search criteria.
+   */
 
   static async filter(queries) {
-    if (Number(queries.maxEmployees) < Number(queries.minEmployees)){
-      throw new BadRequestError("Max employees cannot be less than min employees")
+    if (Number(queries.maxEmployees) < Number(queries.minEmployees)) {
+      throw new BadRequestError(
+        "Max employees cannot be less than min employees"
+      );
     }
+    debugger;
+    const handleVarIdx = "$" + (values.length + 1);
 
     const { whereCondition, values } = sqlForWhereClause(queries);
     const querySql = `SELECT *
