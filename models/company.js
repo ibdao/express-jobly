@@ -36,11 +36,11 @@ class Company {
           logo_url)
            VALUES
              ($1, $2, $3, $4, $5)
-          RETURNING 
-            handle, 
-            name, 
-            description, 
-            num_employees AS "numEmployees", 
+          RETURNING
+            handle,
+            name,
+            description,
+            num_employees AS "numEmployees",
             logo_url AS "logoUrl"`,
       [handle, name, description, numEmployees, logoUrl]
     );
@@ -117,11 +117,11 @@ class Company {
       UPDATE companies
       SET ${setCols}
         WHERE handle = ${handleVarIdx}
-        RETURNING 
-          handle, 
-          name, 
-          description, 
-          num_employees AS "numEmployees", 
+        RETURNING
+          handle,
+          name,
+          description,
+          num_employees AS "numEmployees",
           logo_url AS "logoUrl"`;
     const result = await db.query(querySql, [...values, handle]);
     const company = result.rows[0];
@@ -164,7 +164,7 @@ class Company {
 
     const { whereCondition, values } = sqlForWhereClause(queries);
     const querySql = `
-      SELECT 
+      SELECT
           handle,
           name,
           description,
@@ -175,8 +175,8 @@ class Company {
         ORDER BY name`;
     const result = await db.query(querySql, [...values]);
     const companies = result.rows;
-    
-    //TODO: no error is needed if result is not found. 
+
+    //TODO: no error is needed if result is not found.
     if (companies.length === 0) {
       throw new NotFoundError("No companies match that criteria");
     }
