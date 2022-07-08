@@ -5,7 +5,11 @@
 const jsonschema = require("jsonschema");
 
 const express = require("express");
-const { ensureLoggedIn, ensureAdmin, ensureSameUserOrAdmin } = require("../middleware/auth");
+const {
+  ensureLoggedIn,
+  ensureAdmin,
+  ensureSameUserOrAdmin,
+} = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
@@ -56,13 +60,16 @@ router.get("/", ensureAdmin, async function (req, res, next) {
  *
  * Returns { username, firstName, lastName, isAdmin }
  *
- * Authorization required: login or admin
- **/
+ * Authorization required: logged in as same user or admin **/
 
-router.get("/:username", ensureSameUserOrAdmin, async function (req, res, next) {
-  const user = await User.get(req.params.username);
-  return res.json({ user });
-});
+router.get(
+  "/:username",
+  ensureSameUserOrAdmin,
+  async function (req, res, next) {
+    const user = await User.get(req.params.username);
+    return res.json({ user });
+  }
+);
 
 /** PATCH /[username] { user } => { user }
  *
@@ -71,32 +78,37 @@ router.get("/:username", ensureSameUserOrAdmin, async function (req, res, next) 
  *
  * Returns { username, firstName, lastName, email, isAdmin }
  *
- * Authorization required: login or admin
- **/
+ * Authorization required: logged in as same user or admin **/
 
-router.patch("/:username", ensureSameUserOrAdmin, async function (req, res, next) {
-  const validator = jsonschema.validate(req.body, userUpdateSchema, {
-    required: true,
-  });
-  if (!validator.valid) {
-    const errs = validator.errors.map((e) => e.stack);
-    throw new BadRequestError(errs);
+router.patch(
+  "/:username",
+  ensureSameUserOrAdmin,
+  async function (req, res, next) {
+    const validator = jsonschema.validate(req.body, userUpdateSchema, {
+      required: true,
+    });
+    if (!validator.valid) {
+      const errs = validator.errors.map((e) => e.stack);
+      throw new BadRequestError(errs);
+    }
+
+    const user = await User.update(req.params.username, req.body);
+    return res.json({ user });
   }
-
-  const user = await User.update(req.params.username, req.body);
-  return res.json({ user });
-});
+);
 
 /** DELETE /[username]  =>  { deleted: username }
  *
- * Authorization required: login or admin
+ * Authorization required: logged in as same user or admin
  **/
 
-router.delete("/:username", ensureSameUserOrAdmin, async function (req, res, next) {
-  await User.remove(req.params.username);
-  return res.json({ deleted: req.params.username });
-});
-
-//TODO: edit docstrings for patch, delete, get "Authorization required :"
+router.delete(
+  "/:username",
+  ensureSameUserOrAdmin,
+  async function (req, res, next) {
+    await User.remove(req.params.username);
+    return res.json({ deleted: req.params.username });
+  }
+);
 
 module.exports = router;
