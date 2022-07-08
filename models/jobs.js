@@ -146,42 +146,42 @@ class Job {
   }
 
   /** Builds the SQL WHERE clause based on the given search terms passed through
- *  the query string.
- *
- *  Takes: {
- *     name: Anderson,
- *     minEmployees: 10,
- *     maxEmployees: 500
- *  }
- *
- *  Returns {
- *     whereCondition: 'name ILIKE $1 AND num_employees >= $2 AND num_employees <= $3',
- *     values: ['%Anderson%', '10', '500']
- *  }
- */
+   *  the query string.
+   *
+   *  Takes: {
+   *     name: Anderson,
+   *     minEmployees: 10,
+   *     maxEmployees: 500
+   *  }
+   *
+   *  Returns {
+   *     whereCondition: 'name ILIKE $1 AND num_employees >= $2 AND num_employees <= $3',
+   *     values: ['%Anderson%', '10', '500']
+   *  }
+   */
   static _sqlForWhereClause(queries) {
-  const keys = Object.keys(queries);
-  const conditions = keys.map((searchTerm, idx) => {
-    if (searchTerm !== "name") {
-      if (searchTerm.startsWith("min")) {
-        return `num_employees >= $${idx + 1}`;
-      } else if (searchTerm.startsWith("max")) {
-        return `num_employees <= $${idx + 1}`;
+    const keys = Object.keys(queries);
+    const conditions = keys.map((searchTerm, idx) => {
+      if (searchTerm !== "name") {
+        if (searchTerm.startsWith("min")) {
+          return `num_employees >= $${idx + 1}`;
+        } else if (searchTerm.startsWith("max")) {
+          return `num_employees <= $${idx + 1}`;
+        }
+      } else {
+        return `name ILIKE $${idx + 1}`;
       }
-    } else {
-      return `name ILIKE $${idx + 1}`;
+    });
+
+    if (queries.name) {
+      queries["name"] = "%" + queries["name"] + "%";
     }
-  });
 
-  if (queries.name) {
-    queries["name"] = "%" + queries["name"] + "%";
+    return {
+      whereCondition: conditions.join(" AND "),
+      values: Object.values(queries),
+    };
   }
-
-  return {
-    whereCondition: conditions.join(" AND "),
-    values: Object.values(queries),
-  };
-}
 
   /** Filters companies based on searched terms: name, minEmployees, maxEmployees.
    *
@@ -212,7 +212,6 @@ class Job {
 
     return companies;
   }
-
 }
 
 module.exports = Job;
