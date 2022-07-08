@@ -2,7 +2,7 @@
 
 const jwt = require("jsonwebtoken");
 const { UnauthorizedError } = require("../expressError");
-const { authenticateJWT, ensureLoggedIn, ensureAdmin, ensureUserOrAdmin } = require("./auth");
+const { authenticateJWT, ensureLoggedIn, ensureAdmin, ensureSameUserOrAdmin } = require("./auth");
 
 const { SECRET_KEY } = require("../config");
 const testJwt = jwt.sign({ username: "test", isAdmin: false }, SECRET_KEY);
@@ -97,7 +97,7 @@ describe("ensureAdmin", function () {
   //TODO: add a test for not logged in at all. 
 });
 
-describe("ensureUserOrAdmin", function () {
+describe("ensureSameUserOrAdmin", function () {
   test("works if username and req.params.username matches, does not have to be admin", 
   function () {
     expect.assertions(1);
@@ -106,7 +106,7 @@ describe("ensureUserOrAdmin", function () {
     const next = function (err) {
       expect(err).toBeFalsy();
     };
-    ensureUserOrAdmin(req, res, next);
+    ensureSameUserOrAdmin(req, res, next);
   });
 
   test("works if admin and not same user", function () {
@@ -115,7 +115,7 @@ describe("ensureUserOrAdmin", function () {
     const next = function (err) {
       expect(err).toBeFalsy();
     };
-    ensureUserOrAdmin(req, res, next);
+    ensureSameUserOrAdmin(req, res, next);
   });
 
   test("when not same user and not admin", function () {
@@ -125,7 +125,7 @@ describe("ensureUserOrAdmin", function () {
     const next = function (err) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
     };
-    ensureUserOrAdmin(req, res, next);
+    ensureSameUserOrAdmin(req, res, next);
   });
 
 });
