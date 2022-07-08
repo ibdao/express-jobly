@@ -111,20 +111,6 @@ describe("get", function () {
     }
   });
 });
-describe("filter", function () {
-  test("invalid query logic: minEmployees cannot be more than maxEmployees", async function () {
-    const query = {
-      minEmployees: 5,
-      maxEmployees: 3,
-    };
-    try {
-      await Company.filter(query);
-      throw new Error("Fail test, you shouldn't get here");
-    } catch (err) {
-      expect(err instanceof BadRequestError).toBeTruthy();
-    }
-  });
-});
 
 /************************************** update */
 
